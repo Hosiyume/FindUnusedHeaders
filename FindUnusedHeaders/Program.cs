@@ -6,7 +6,11 @@ using System.Text.RegularExpressions;
 
 List<string> includedHeaders = new();
 string input = Console.ReadLine();
-string projectName = Console.ReadLine() ?? "LiteLoader.NET";
+string projectName = Console.ReadLine();
+if (string.IsNullOrWhiteSpace(projectName))
+{
+    projectName = "src";
+}
 Console.Clear();
 string rootPath = Path.Combine(input, projectName);
 Process(new(rootPath), "*.cpp", ProcessFile);
@@ -21,17 +25,17 @@ Process(new(rootPath), "*.hpp", (file) =>
 void ProcessFile(FileInfo file)
 {
     string fileData = File.ReadAllText(file.FullName);
-    foreach (FileInfo header in from string headerPath in
-                                    from Match match in Regex1().Matches(fileData).Cast<Match>()
-                                    let headerPath = match.Groups[1].Value
-                                    select headerPath
-                                let headerFullPath = headerPath.StartsWith(projectName)
-                  ? Path.Combine(input, "..", headerPath)
-                  : Path.Combine(file.DirectoryName, headerPath)
-                                let header = new FileInfo(headerFullPath)
-                                select header)
+    foreach ((FileInfo header, string upperHeaderPath) in from FileInfo header in
+                                                  from Match match in Regex1().Matches(fileData).Cast<Match>()
+                                                  let headerPath = match.Groups[1].Value
+                                                  let headerFullPath = headerPath.StartsWith(projectName)
+                                                      ? Path.Combine(input, headerPath)
+                                                      : Path.Combine(file.DirectoryName, headerPath)
+                                                  let header = new FileInfo(headerFullPath)
+                                                  select header
+                                              let upperHeaderPath = header.FullName.ToUpperInvariant()
+                                              select (header, upperHeaderPath))
     {
-        string upperHeaderPath = header.FullName.ToUpperInvariant();
         if (!header.Exists || includedHeaders.Contains(upperHeaderPath))
         {
             continue;
