@@ -1,7 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 List<string> includedHeaders = new();
@@ -26,15 +22,15 @@ void ProcessFile(FileInfo file)
 {
     string fileData = File.ReadAllText(file.FullName);
     foreach ((FileInfo header, string upperHeaderPath) in from FileInfo header in
-                                                  from Match match in Regex1().Matches(fileData).Cast<Match>()
-                                                  let headerPath = match.Groups[1].Value
-                                                  let headerFullPath = headerPath.StartsWith(projectName)
-                                                      ? Path.Combine(input, headerPath)
-                                                      : Path.Combine(file.DirectoryName, headerPath)
-                                                  let header = new FileInfo(headerFullPath)
-                                                  select header
-                                              let upperHeaderPath = header.FullName.ToUpperInvariant()
-                                              select (header, upperHeaderPath))
+                                                              from Match match in Regex1().Matches(fileData).Cast<Match>()
+                                                              let headerPath = match.Groups[1].Value
+                                                              let headerFullPath = headerPath.StartsWith(projectName)
+                                                                  ? Path.Combine(input, headerPath)
+                                                                  : Path.Combine(file.DirectoryName, headerPath)
+                                                              let header = new FileInfo(headerFullPath)
+                                                              select header
+                                                          let upperHeaderPath = header.FullName.ToUpperInvariant()
+                                                          select (header, upperHeaderPath))
     {
         if (!header.Exists || includedHeaders.Contains(upperHeaderPath))
         {
